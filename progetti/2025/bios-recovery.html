@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ripristino BIOS PC Fujitsu - SIMONEGTT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="../../index.html" class="home-link">SIMONEGTT</a></h1> <b>.github.io</b>
+      <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
+    </header>
+
+    <div id="sidebar" class="sidebar">
+      <div class="close-icon" onclick="toggleSidebar()">✕</div>
+      <ul>
+        <li onclick="location.href='../../index.html'">Home</li>
+        <li onclick="location.href='../../contatti.html'">Contatti</li>
+        <li onclick="location.href='../../progetti.html'">Progetti</li>
+      </ul>
+    </div>
+
+    <div class="article-box">
+      <div class="date">12/06/2025</div>
+      <h2>Ripristino BIOS PC Fujitsu</h2>
+      <p>
+        Questa guida descrive come ripristinare la funzionalità del sistema nel caso in cui il computer non si avvii più dopo l’installazione di specifici aggiornamenti di Microsoft Windows a partire da giugno 2025 (es. KB5060533, KB5061010, KB5060531).
+        <br /><br />
+        Il problema si verifica solo se l’opzione del BIOS: “Security -> Secure Boot Configuration -> Secure Boot Control: Enabled” è attivata.
+        <br /><br />
+		Sintomi dell'errore:<br />
+		- Il sistema rimane bloccato durante il POST mostrando il logo FUJITSU.<br />
+		- Non è possibile accedere al BIOS premendo il tasto F2.<br />
+		- Non è possibile aprire il menu di avvio premendo il tasto F12.
+		<br /><br />
+		Sistemi interessati:<br />
+		CELSIUS J550 / CELSIUS W550 / CELSIUS W550 / ESPRIMO D556 / ESPRIMO D556/E94+ / ESPRIMO D756 / ESPRIMO D956 / ESPRIMO P556 - PH556 / ESPRIMO P756 / ESPRIMO P956 / ESPRIMO Q556 / ESPRIMO Q556/D / ESPRIMO Q956 / ESPRIMO X956 - X956/T
+		<br /><br />
+		<b>Il problema può essere risolto eseguendo un Ripristino del BIOS/UEFI come descritto nella seguente procedura:</b>
+		<br /><br />
+		OPERAZIONI PRELIMINARI: Scaricare e scompattare l'archivio fornito da Fujitsu contenente i file necessari per il ripristino e le indicazioni per mettere il jumper in posizione di recovery: <a href="https://docs.ts.fujitsu.com/dl.aspx?id=7429959b-83ed-42e2-8a78-bd7b58aeb7bc" target="_blank">DOWNLOAD</a>
+		<br /><br />
+		1. Scaricare lo strumento "FreeDOS BootStick" e creare una chiavetta USB avviabile (capacità massima 32 GB): <a href="https://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=4C7EAC35-E4B9-4EB2-B51D-C7AB265A9690" target="_blank">DOWNLOAD</a>
+		<br />
+		La chiavetta USB deve contenere una sola partizione formattata in FAT32.
+		<br /><br />
+		2. Copiare tutti i file “.rom” contenuti nella sottocartella “BIOS_Files” nella directory principale della chiavetta USB.
+		<br /><br />
+		3. Spegnere il sistema e scollegarlo dall’alimentazione.
+		<br /><br />
+		4. Aprire il case (vedere il Manuale Operativo scaricabile da: <a href="https://support.ts.fujitsu.com/IndexDownload.asp?lng=com" target="_blank">DOWNLOAD</a>)
+		<br /><br />
+		5. Spostare il jumper del “FRONTPANEL” dalla posizione “Default” alla posizione “Recovery”.
+		<br /><br />
+		6. Inserire la chiavetta USB in una porta USB 2.x del sistema e rimuovere eventuali altri dispositivi USB avviabili.
+		<br /><br />
+		7. Collegare l’alimentazione. Il sistema dovrebbe accendersi automaticamente. In caso contrario, premere il pulsante di accensione.<br />
+		Il processo di ripristino dovrebbe iniziare automaticamente e può durare fino a 10 minuti.<br />
+		Durante il ripristino si sentiranno beep brevi ripetitivi. Alla fine, un beep lungo seguito da “breve-breve-lungo-lungo”.
+		<br /><br />
+		8. Al termine:<br />
+		- Spegnere e scollegare il sistema.<br />
+		- Rimuovere la chiavetta USB.<br />
+		- Ripristinare il jumper da “Recovery” a “Default”.<br />
+		- Chiudere il case.<br />
+		- Ricollegare l’alimentazione e accendere il sistema.
+		<br /><br />
+		9. Premere ripetutamente F2 durante il POST per accedere al BIOS.
+		<br /><br />
+		10. Impostare: Security -> Secure Boot Configuration -> Secure Boot Control: Disabled
+		<br /><br />
+		12. Salvare le modifiche: Save & Exit -> Save Changes and Exit
+		<br /><br />
+		13. Il sistema dovrebbe ora avviarsi correttamente.
+		<br /><br />
+		<i>
+		Note:<br />
+		- Se lo schermo rimane nero, rimuovere temporaneamente la scheda grafica dedicata, collegare il monitor alla porta della scheda madre, e ripetere il ripristino se necessario.<br />
+		- Per evitare futuri problemi, mantenere sempre disattivata l’opzione “Secure Boot Control”.<br />
+		- Link al post originale: <a href="https://www.reddit.com/r/Fujitsu/comments/1l9i9w5/dozens_of_p556_with_corrupted_bios_after_update/" target="_blank">consulta il mio profilo</a>
+		</i>
+		<br /><br />
+	  </p>
+
+      <div class="send-button-container">
+        <button onclick="history.back()">← Torna indietro</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../scripts/main.js"></script>
+</body>
+</html>

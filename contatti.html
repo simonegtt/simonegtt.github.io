@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contatti - SIMONEGTT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" class="home-link">SIMONEGTT</a></h1> <b>.github.io</b>
+      <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
+    </header>
+
+    <div id="sidebar" class="sidebar">
+      <div class="close-icon" onclick="toggleSidebar()">✕</div>
+      <ul>
+        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="location.href='contatti.html'">Contatti</li>
+        <li onclick="location.href='progetti.html'">Progetti</li>
+      </ul>
+    </div>
+
+    <!-- Progetto in evidenza -->
+	<br />
+    <p align="center">I break machines for a living — fixing them is just a side effect!</p>
+	<br /><br />
+
+    <!-- Riquadro contatti -->
+    <div class="article-box">
+      <h2 class="box-title">Contatti</h2>
+      <div class="social-icons spaced">
+        <div class="social">
+          <a href="https://github.com/simonegtt" target="_blank"><i class="fab fa-github"></i></a>
+          <div>GitHub</div>
+        </div>
+        <div class="social">
+          <a href="https://linkedin.com/" target="_blank"><i class="fab fa-linkedin"></i></a>
+          <div>LinkedIn</div>
+        </div>
+        <div class="social">
+          <a href="https://reddit.com/user/deusfk/" target="_blank"><i class="fab fa-reddit"></i></a>
+          <div>Reddit</div>
+        </div>
+        <div class="social">
+          <a href="https://x.com/simonegttt" target="_blank"><i class="fab fa-x-twitter"></i></a>
+          <div>X</div>
+        </div>
+        <div class="social">
+          <a href="https://instagram.com/simone_gtt" target="_blank"><i class="fab fa-instagram"></i></a>
+          <div>Instagram</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Riquadro scrivimi -->
+	<div class="article-box">
+	  <h2 class="box-title">Scrivimi</h2>
+	  <p>Ricorda di inserire un contatto, altrimenti non potrò risponderti!</p>
+	  <form action="https://formspree.io/f/mpwrodqa" method="POST">
+		<div class="textarea-wrapper">
+		  <textarea name="message" placeholder="Scrivi qui il tuo messaggio..." rows="6" required></textarea>
+		</div>
+		<div class="send-button-container">
+		  <button type="submit">Invia</button>
+		</div>
+	  </form>
+	</div>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>

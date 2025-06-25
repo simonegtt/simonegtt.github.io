@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TITOLO DEL PROGETTO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>SIMONEGTT</h1>
+      <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
+    </header>
+
+    <div id="sidebar" class="sidebar">
+      <div class="close-icon" onclick="toggleSidebar()">✕</div>
+      <ul>
+        <li onclick="location.href='../../index.html'">Home</li>
+        <li onclick="location.href='../../contatti.html'">Contatti</li>
+        <li onclick="location.href='../../progetti.html'">Progetti</li>
+      </ul>
+    </div>
+
+    <div class="article-box">
+      <div class="date">GG/MM/AAAA</div>
+      <h2>TITOLO DEL PROGETTO</h2>
+      <p>
+        Scrivi qui la descrizione completa del progetto. Puoi utilizzare tutti gli elementi HTML base: paragrafi, link, elenchi, grassetto, immagini ecc.
+      </p>
+
+      <div class="send-button-container">
+        <button onclick="history.back()">← Torna indietro</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../scripts/main.js"></script>
+</body>
+</html>

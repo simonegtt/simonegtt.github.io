@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIMONEGTT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>SIMONEGTT</h1> <b>.github.io</b>
+      <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
+    </header>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+      <div class="close-icon" onclick="toggleSidebar()">✕</div>
+      <ul>
+        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="location.href='contatti.html'">Contatti</li>
+        <li onclick="location.href='progetti.html'">Progetti</li>
+      </ul>
+    </div>
+
+    <!-- Scopri chi sono -->
+    <div class="send-button-container" style="margin-top: 20px;">
+      <a href="contatti.html"><button>Scopri chi sono →</button></a>
+    </div>
+
+    <!-- Progetto in evidenza -->
+    <div class="article-box">
+      <div class="date">12/06/2025<span style="font-size: 14px;"> -🔥36K</span></div>
+      <h2>Ripristino BIOS PC Fujitsu</h2>
+      <p>Questa guida descrive come ripristinare la funzionalità del sistema nel caso in cui il computer non si avvii più dopo l’installazione di specifici aggiornamenti di Microsoft Windows a partire da giugno 2025.</p>
+      <a href="progetti/2025/bios-recovery.html">Continua a leggere</a>
+    </div>
+
+    <!-- Altri progetti -->
+    <div class="year-group" data-year="2024">
+      <div class="article-box">
+        <div class="date">01/01/2024<span style="font-size: 14px;"> - 👁1</span></div>
+        <h2>Progetto di test 2024</h2>
+        <p>Un breve esempio di progetto creato nel 2024 per testare la struttura del sito.</p>
+        <a href="#">Non puoi leggere!</a>
+      </div>
+    </div>
+
+    <!-- Esplora progetti -->
+    <div class="send-button-container" style="margin-top: 30px;">
+      <a href="progetti.html"><button>Esplora tutti i progetti →</button></a>
+    </div>
+  </div>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
