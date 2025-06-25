@@ -43,16 +43,6 @@ La pagina `contatti.html` include:
 
 ---
 
-## Aggiunta di un nuovo progetto
-
-1. Copia `progetti/template.html`
-2. Incollalo nella cartella `progetti/[ANNO]/`
-3. Rinominalo (es. `nome-progetto.html`)
-4. Modifica titolo, data, contenuto
-5. Aggiungi il link in `progetti.html`
-
----
-
 ## Tecnologie usate
 
 - HTML + CSS + JavaScript Vanilla
