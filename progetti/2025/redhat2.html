@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recupero dati da un server Red Hat 2.0 del 2003 - SIMONEGTT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="../../index.html" class="home-link">SIMONEGTT</a></h1> <b>.github.io</b>
+      <div class="menu-icon" onclick="toggleSidebar()">&#9776;</div>
+    </header>
+
+    <div id="sidebar" class="sidebar">
+      <div class="close-icon" onclick="toggleSidebar()">✕</div>
+      <ul>
+        <li onclick="location.href='../../index.html'">Home</li>
+        <li onclick="location.href='../../contatti.html'">Contatti</li>
+        <li onclick="location.href='../../progetti.html'">Progetti</li>
+      </ul>
+    </div>
+
+    <div class="article-box">
+      <div class="date">12/06/2025</div>
+      <h2>Recupero dati da un server Red Hat 2.0 del 2003</h2>
+      <p>
+        <br>
+        Una piccola impresa informatica tra ruggine digitale e hardware d’altri tempi. Obiettivo: salvare file da un glorioso Red Hat 2.0 con due dischi in RAID 1, uno dei quali completamente andato.<br><br>
+        
+        Preparazione del sistema di recupero<br>
+        - Masterizzo Ubuntu 7.04 (32 bit) su CD. Sì, proprio lui, quello che oggi gira più volentieri su un tostapane che su un PC.<br>
+        - Tiro fuori un vecchio masterizzatore IDE, lo collego via flat, e inizia il balletto: inclinato in un senso per far entrare il disco, inclinato nell’altro per leggerlo. La tecnologia, quella vera.<br>
+        - Collegati anche monitor VGA e tastiera PS/2, perché USB era ancora un lusso.<br><br>
+        
+        Problema iniziale<br>
+        Il boot di Red Hat? Neanche a parlarne. Il sistema va in kernel panic a causa del RAID mezzo defunto. Ma arrendersi non è un’opzione.<br><br>
+        
+        Avvio in Live Mode<br>
+        - Dopo un paio di tentativi, Ubuntu 7 si avvia in modalità live (anche lui inizialmente perplesso dal hardware preistorico).<br>
+        - Un rapido <code>fdisk -l</code> per capire che fine hanno fatto le partizioni (sda1... no, sda3... anzi sda5, ovviamente).<br><br>
+        
+        Montaggio dischi e copia<br>
+        - Collego un disco USB esterno formattato in ext3 (perché ext4 nel 2003 era fantascienza).<br>
+        - Montaggio a mano:<br>
+        <code>mount /dev/sda3 /mnt/recupero</code><br>
+        <code>mount /dev/sdb1 /mnt/usb</code><br>
+        - Recupero con <code>rsync</code>, il coltellino svizzero del recupero dati:<br>
+        <code>rsync -avh /mnt/recupero/ /mnt/usb/backup_sda3</code><br>
+        (Ripetuto anche per sda1 e sda5, perché i dati si nascondono sempre dove meno te li aspetti.)<br><br>
+        
+        Accesso ai file da Windows<br>
+        Una volta collegato il disco USB al PC moderno, uso DiskInternals Linux Reader per leggere le partizioni ext3. E contro ogni previsione, funziona.<br><br>
+        
+        Risultato<br>
+        Dati salvati, RAID smontato mentalmente, dignità tecnica intatta. Morale: mai sottovalutare una distro del 2007 e un cavo flat ben collegato.
+		<br /><br />
+	  </p>
+
+      <div class="send-button-container">
+        <button onclick="history.back()">← Torna indietro</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../scripts/main.js"></script>
+</body>
+</html>
