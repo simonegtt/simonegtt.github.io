@@ -39,17 +39,17 @@
         Il boot di Red Hat? Neanche a parlarne. Il sistema va in kernel panic a causa del RAID mezzo defunto. Ma arrendersi non è un’opzione.<br><br>
         
         Avvio in Live Mode<br>
-        - Dopo un paio di tentativi, Ubuntu 7 si avvia in modalità live (anche lui inizialmente perplesso dal hardware preistorico).<br>
-        - Un rapido <code>fdisk -l</code> per capire che fine hanno fatto le partizioni (sda1... no, sda3... anzi sda5, ovviamente).<br><br>
+        - Dopo un paio di tentativi, Ubuntu 7 si avvia in modalità live (anche lui inizialmente perplesso dall'hardware preistorico).<br>
+        - Un rapido <code>fdisk -l</code> per capire che fine hanno fatto le partizioni.<br><br>
         
         Montaggio dischi e copia<br>
-        - Collego un disco USB esterno formattato in ext3 (perché ext4 nel 2003 era fantascienza).<br>
+        - Collego un disco USB esterno formattato in ext3.<br>
         - Montaggio a mano:<br>
-        <code>mount /dev/sda3 /mnt/recupero</code><br>
-        <code>mount /dev/sdb1 /mnt/usb</code><br>
-        - Recupero con <code>rsync</code>, il coltellino svizzero del recupero dati:<br>
-        <code>rsync -avh /mnt/recupero/ /mnt/usb/backup_sda3</code><br>
-        (Ripetuto anche per sda1 e sda5, perché i dati si nascondono sempre dove meno te li aspetti.)<br><br>
+        <code>Dei dischi (sda2/3/5): mount /dev/sda2 /mnt/recupero</code><br>
+        <code>Dell'HDD USB esterno: mount /dev/sdb1 /mnt/usb</code><br>
+        - Recupero con <code>rsync</code>, il coltellino svizzero della copia dati:<br>
+        <code>rsync -avh /mnt/recupero/ /mnt/usb/backup</code><br>
+        (Ripetuto per tutte le partizioni, perché i dati si nascondono sempre dove meno te li aspetti.)<br><br>
         
         Accesso ai file da Windows<br>
         Una volta collegato il disco USB al PC moderno, uso DiskInternals Linux Reader per leggere le partizioni ext3. E contro ogni previsione, funziona.<br><br>
