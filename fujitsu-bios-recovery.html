@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>simonegtt — terminal</title>
+<title>simonegtt — Ripristino BIOS PC Fujitsu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -26,13 +26,6 @@
     --fg-dim: #9a9a9a;
     --fg-glow: rgba(240,240,240,0.5);
     --scanline: rgba(240,240,240,0.05);
-  }
-  [data-theme="bsod"]{
-    --bg: #0a1f8f;
-    --fg: #ffffff;
-    --fg-dim: #bcd2ff;
-    --fg-glow: rgba(255,255,255,0.5);
-    --scanline: rgba(255,255,255,0.05);
   }
 
   *{ box-sizing: border-box; }
@@ -66,8 +59,6 @@
     transition: box-shadow 0.4s ease;
   }
 
-  /* flicker sits OUTSIDE the filtered element so the SVG filter is not
-     recomputed on every animation frame */
   .flicker-layer{
     position:fixed;
     inset:0;
@@ -84,16 +75,12 @@
     position:absolute;
     inset:0;
     background:
-      /* glass sheen top/bottom */
       radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.08), transparent 55%),
       radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.03), transparent 60%),
-      /* corners read darkest on curved glass -- shade each one directly
-         instead of relying only on a uniform center-out vignette */
       radial-gradient(ellipse 55% 45% at 0% 0%,   rgba(0,0,0,0.6), transparent 70%),
       radial-gradient(ellipse 55% 45% at 100% 0%, rgba(0,0,0,0.6), transparent 70%),
       radial-gradient(ellipse 55% 45% at 0% 100%, rgba(0,0,0,0.6), transparent 70%),
       radial-gradient(ellipse 55% 45% at 100% 100%, rgba(0,0,0,0.6), transparent 70%),
-      /* overall falloff */
       radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.45) 100%);
     pointer-events:none;
     z-index:5;
@@ -116,9 +103,7 @@
     z-index:6;
   }
 
-  /* static/noise: grain sits in fixed zones at the top and bottom of the
-     screen, fading out toward the middle. The band never moves — only the
-     grain inside it churns. */
+  /* static/noise */
   .noise-layer{
     position:absolute;
     inset:0;
@@ -144,11 +129,6 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
-    /* if centering would overflow, stick to the top instead of clipping
-       (falls back to plain "center" on browsers without "safe" support) */
-    justify-content:safe center;
-    text-align:center;
     padding: 6vh 6vw;
     overflow-y: auto;
     color: var(--fg);
@@ -160,32 +140,35 @@
     color: var(--fg-dim);
     margin-bottom: 1.2rem;
     letter-spacing: 1px;
+    text-align:center;
   }
 
-  h1{
+  .page-title{
     font-family: "Courier New", "Consolas", monospace;
-    font-size: clamp(1.8rem, 6vw, 3.2rem);
+    font-size: clamp(1.05rem, 3vw, 1.5rem);
     margin: 0 0 0.4rem 0;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    text-align:center;
   }
 
-  h1::before{ content: "> "; }
+  .page-title::before{ content: "> "; color: var(--fg-dim); }
 
-  .cursor{
-    display:inline-block;
-    width: 0.55em;
-    background: var(--fg);
-    margin-left: 4px;
-    animation: blink 1s steps(1) infinite;
-    box-shadow: 0 0 6px var(--fg-glow);
-  }
-
-  .role{
-    font-size: clamp(0.9rem, 2.4vw, 1.2rem);
+  /* "simonegtt" and "/projects" are just the way back -- keep them dim;
+     the current page is where you are, so it carries the light */
+  .page-title a{
     color: var(--fg-dim);
-    margin-bottom: 2rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  .page-title a:hover{
+    color: var(--fg);
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 16px var(--fg-glow);
+  }
+
+  .page-title .path{
+    color: var(--fg);
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 16px var(--fg-glow);
   }
 
   .divider{
@@ -202,80 +185,157 @@
     gap: 1.6rem;
     flex-wrap: wrap;
     justify-content:center;
-    margin: 1.2rem 0 2rem 0;
+    margin: 1.6rem 0 2rem 0;
   }
 
   nav.links a{
     color: var(--fg);
     text-decoration: none;
-    border: 1px solid var(--fg-dim);
-    padding: 0.5rem 1.1rem;
     font-size: clamp(0.75rem, 1.8vw, 0.95rem);
     letter-spacing: 1px;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
+    transition: text-shadow 0.2s ease, opacity 0.2s ease;
+    opacity: 0.85;
   }
 
   nav.links a:hover,
   nav.links a:focus{
-    background: color-mix(in srgb, var(--fg) 12%, transparent);
-    border-color: var(--fg);
-    box-shadow: 0 0 10px 1px var(--fg-glow), 0 0 26px 4px var(--fg-glow);
+    opacity: 1;
     text-shadow: 0 0 6px var(--fg-glow), 0 0 18px var(--fg-glow);
   }
 
-  nav.links a::before{ content: "[ "; }
-  nav.links a::after{ content: " ]"; }
+  nav.links a::before{ content: "> "; color: var(--fg-dim); }
+  nav.links a::after{ content: " <"; color: var(--fg-dim); }
 
-  .skills{
+  /* ---- article body: readable, left-aligned prose ---- */
+  .article{
     width: 100%;
-    max-width: 560px;
+    max-width: 680px;
+    text-align: left;
   }
 
-  .skills-title{
-    font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+  .article-date{
+    font-size: 0.75rem;
     color: var(--fg-dim);
-    margin-bottom: 0.8rem;
-    letter-spacing: 2px;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    margin-bottom: 0.3rem;
   }
 
-  .skills-title::before{ content: "$ "; }
-
-  .skill-grid{
-    list-style:none;
-    padding:0;
-    margin:0;
-    display:flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.4rem;
-    justify-content:center;
+  .article-thanks{
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    opacity: 0.85;
+    font-style: italic;
+    margin: -0.7rem 0 1.4rem 0;
   }
 
-  .skill-grid li{
-    font-size: clamp(0.7rem, 1.6vw, 0.85rem);
-    opacity: 0.9;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-  }
+  .article-thanks::before{ content: "// "; }
 
-  .skill-grid.core li{
-    font-size: clamp(0.85rem, 2vw, 1.05rem);
+  .article h1.article-title{
+    font-family: "Courier New", "Consolas", monospace;
+    font-size: clamp(1.3rem, 3.4vw, 1.8rem);
+    margin: 0 0 1.4rem 0;
     letter-spacing: 0.5px;
+  }
+
+  .article p{
+    font-size: 0.85rem;
+    line-height: 1.7;
+    margin: 0 0 1.1rem 0;
+    opacity: 0.95;
+  }
+
+  .article .lede{
     opacity: 1;
   }
 
-  .skill-stack{
-    font-size: 0.58rem;
+  .callout{
+    border-left: 2px solid var(--fg-dim);
+    padding: 0.7rem 1rem;
+    margin: 0 0 1.4rem 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
     color: var(--fg-dim);
-    opacity: 0.55;
-    text-shadow: none;
-    letter-spacing: 0.3px;
-    margin-top: 0.15rem;
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
   }
 
-  /* normal document flow (not pinned/absolute) so it can never overlap the
-     rest of the content when the window gets short or narrow -- it just
-     sits after the footer, like any other line */
+  .callout::before{ content: "! "; color: var(--fg); }
+
+  .section-title{
+    font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+    color: var(--fg-dim);
+    letter-spacing: 2px;
+    margin: 2rem 0 0.8rem 0;
+  }
+
+  .section-title::before{ content: "$ "; }
+
+  .article ul,
+  .article ol{
+    margin: 0 0 1.2rem 0;
+    padding-left: 1.4rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .article ul{ list-style: none; padding-left: 0; }
+
+  .article ul li{ padding-left: 1.3rem; position:relative; margin-bottom: 0.4rem; }
+  .article ul li::before{
+    content: "›";
+    position:absolute;
+    left: 0;
+    color: var(--fg-dim);
+  }
+
+  .article ol{ list-style: none; counter-reset: step; }
+  .article ol li{
+    counter-increment: step;
+    padding-left: 2rem;
+    position:relative;
+    margin-bottom: 0.7rem;
+  }
+  .article ol li::before{
+    content: counter(step) ".";
+    position:absolute;
+    left: 0;
+    color: var(--fg-dim);
+  }
+
+  .systems-list{
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--fg-dim);
+    opacity: 0.85;
+    margin: 0 0 1.2rem 0;
+    word-break: break-word;
+  }
+
+  .article strong{
+    color: var(--fg);
+    font-weight: normal;
+    text-shadow: 0 0 4px var(--fg-glow);
+  }
+
+  .article a{
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--fg-dim);
+    text-underline-offset: 3px;
+  }
+
+  .article a:hover{
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 14px var(--fg-glow);
+  }
+
+  .note-box{
+    margin-top: 1.6rem;
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    opacity: 0.85;
+    line-height: 1.7;
+  }
+
   .power-buttons{
     flex-shrink: 0;
     margin-top: 1.6rem;
@@ -301,7 +361,6 @@
     gap: 15px;
   }
 
-  /* bare glowing dots: no border, no plate — only the colour reads */
   .power-dot{
     position: relative;
     width: 11px;
@@ -316,7 +375,6 @@
     transition: opacity 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   }
 
-  /* widen the click target beyond the tiny visible dot */
   .power-dot::before{
     content:"";
     position:absolute;
@@ -339,11 +397,7 @@
     font-size: clamp(0.65rem, 1.4vw, 0.78rem);
     color: var(--fg-dim);
     opacity: 0.7;
-  }
-
-  @keyframes blink{
-    0%, 49%{ opacity: 1; }
-    50%, 100%{ opacity: 0; }
+    text-align:center;
   }
 
   @keyframes flickerFade{
@@ -353,7 +407,6 @@
     95% { opacity: 0.05; }
     96% { opacity: 0; }
   }
-
 
   @media (max-width: 600px){
     nav.links{ gap: 0.8rem; }
@@ -365,29 +418,62 @@
     <div class="screen-content">
       <div class="prompt-line">last login: <span id="lastLogin"></span></div>
 
-      <h1 id="typedName"></h1>
-      <div class="role">linux system administrator</div>
+      <h1 class="page-title">
+        <a href="index.html">simonegtt</a><a href="projects.html">/projects</a><span class="path">/fujitsu-bios-recovery</span>
+      </h1>
 
       <hr class="divider">
 
-      <nav class="links">
-        <a href="https://github.com/simonegtt" target="_blank" rel="noopener">github</a>
-        <a href="projects.html">projects</a>
-      </nav>
+      <article class="article">
+        <div class="article-date">12/06/2025</div>
+        <h1 class="article-title">Ripristino BIOS PC Fujitsu</h1>
+        <div class="article-thanks">Grazie a tutti per le 75.000 visualizzazioni ricevute da questo articolo!</div>
 
-      <div class="skills">
-        <div class="skills-title">cat skills.txt</div>
-        <ul class="skill-grid core">
-          <li id="skillLinux" style="cursor:pointer">Linux<small class="skill-stack">RHEL · Debian · Docker</small></li>
-          <li id="skillWindows" style="cursor:pointer">Windows<small class="skill-stack">Server · Active Directory</small></li>
-          <li>Networking<small class="skill-stack">Zyxel</small></li>
-          <li>Automation<small class="skill-stack">Bash · Ansible</small></li>
-          <li>Virtualization<small class="skill-stack">VMware · Proxmox</small></li>
-          <li>Backup<small class="skill-stack">QNAP · Veeam</small></li>
-          <li>Security<small class="skill-stack">VPN · Firewall</small></li>
-          <li>Hardware<small class="skill-stack">Lenovo · Fujitsu</small></li>
+        <p class="lede">Questa guida descrive come ripristinare la funzionalità del sistema nel caso in cui il computer non si avvii più dopo l'installazione di specifici aggiornamenti di Microsoft Windows a partire da giugno 2025 (es. KB5060533, KB5061010, KB5060531).</p>
+
+        <div class="callout">Il problema si verifica solo se l'opzione del BIOS <strong>Security → Secure Boot Configuration → Secure Boot Control: Enabled</strong> è attivata.</div>
+
+        <div class="section-title">sintomi dell'errore</div>
+        <ul>
+          <li>Il sistema rimane bloccato durante il POST mostrando il logo FUJITSU.</li>
+          <li>Non è possibile accedere al BIOS premendo il tasto F2.</li>
+          <li>Non è possibile aprire il menu di avvio premendo il tasto F12.</li>
         </ul>
-      </div>
+
+        <div class="section-title">sistemi interessati</div>
+        <p class="systems-list">CELSIUS J550 / CELSIUS W550 / ESPRIMO D556 / ESPRIMO D556/E94+ / ESPRIMO D756 / ESPRIMO D956 / ESPRIMO P556 - PH556 / ESPRIMO P756 / ESPRIMO P956 / ESPRIMO Q556 / ESPRIMO Q556/D / ESPRIMO Q956 / ESPRIMO X956 - X956/T</p>
+
+        <p>Il problema può essere risolto eseguendo un ripristino del BIOS/UEFI come descritto nella seguente procedura.</p>
+
+        <div class="section-title">operazioni preliminari</div>
+        <p>Scaricare e scompattare l'archivio fornito da Fujitsu contenente i file necessari per il ripristino e le indicazioni per mettere il jumper in posizione di recovery: <a href="https://docs.ts.fujitsu.com/dl.aspx?id=7429959b-83ed-42e2-8a78-bd7b58aeb7bc" target="_blank" rel="noopener">DOWNLOAD</a></p>
+
+        <div class="section-title">procedura di ripristino</div>
+        <ol>
+          <li>Scaricare lo strumento "FreeDOS BootStick" e creare una chiavetta USB avviabile, capacità massima 32&nbsp;GB (<a href="https://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=4C7EAC35-E4B9-4EB2-B51D-C7AB265A9690" target="_blank" rel="noopener">DOWNLOAD</a>). La chiavetta USB deve contenere una sola partizione formattata in FAT32.</li>
+          <li>Copiare tutti i file “.rom” contenuti nella sottocartella “BIOS_Files” nella directory principale della chiavetta USB.</li>
+          <li>Spegnere il sistema e scollegarlo dall'alimentazione.</li>
+          <li>Aprire il case (vedere il Manuale Operativo scaricabile da: <a href="https://support.ts.fujitsu.com/IndexDownload.asp?lng=com" target="_blank" rel="noopener">DOWNLOAD</a>).</li>
+          <li>Spostare il jumper del "FRONTPANEL" dalla posizione "Default" alla posizione "Recovery".</li>
+          <li>Inserire la chiavetta USB in una porta USB 2.x del sistema e rimuovere eventuali altri dispositivi USB avviabili.</li>
+          <li>Collegare l'alimentazione. Il sistema dovrebbe accendersi automaticamente; in caso contrario, premere il pulsante di accensione. Il ripristino dovrebbe iniziare da solo e può durare fino a 10 minuti. Durante il processo si sentiranno beep brevi ripetitivi; alla fine, un beep lungo seguito da “breve-breve-lungo-lungo”.</li>
+          <li>Al termine: spegnere e scollegare il sistema, rimuovere la chiavetta USB, ripristinare il jumper da "Recovery" a "Default", chiudere il case, ricollegare l'alimentazione e accendere il sistema.</li>
+          <li>Premere ripetutamente F2 durante il POST per accedere al BIOS.</li>
+          <li>Impostare: Security → Secure Boot Configuration → Secure Boot Control: <strong>Disabled</strong>.</li>
+          <li>Salvare le modifiche: Save &amp; Exit → Save Changes and Exit.</li>
+          <li>Il sistema dovrebbe ora avviarsi correttamente.</li>
+        </ol>
+
+        <div class="note-box">
+          <div class="section-title" style="margin-top:0">note</div>
+          <p style="font-size:0.78rem; opacity:0.85; margin-bottom:0.6rem;">Se lo schermo rimane nero, rimuovere temporaneamente la scheda grafica dedicata, collegare il monitor alla porta della scheda madre, e ripetere il ripristino se necessario.</p>
+          <p style="font-size:0.78rem; opacity:0.85; margin-bottom:0;">Per evitare futuri problemi, mantenere sempre disattivata l'opzione "Secure Boot Control".</p>
+        </div>
+      </article>
+
+      <nav class="links">
+        <a href="projects.html">back to projects</a>
+      </nav>
 
       <footer class="sys">system online — session time: <span id="sessionTimer">00:00:00</span></footer>
 
@@ -407,7 +493,7 @@
   <div class="flicker-layer"></div>
 
 <script>
-  // ---- static/noise overlay, cool-retro-term style -----------------------
+  // ---- static/noise overlay ----
   function makeNoiseFrame(size){
     const c = document.createElement('canvas');
     c.width = c.height = size;
@@ -422,10 +508,7 @@
   }
 
   const noiseLayer = document.getElementById('noiseLayer');
-
   if(noiseLayer){
-    // the grain always churns: it is a texture shimmer confined to the screen
-    // edges, not the kind of large motion prefers-reduced-motion guards against
     const noiseFrames = Array.from({ length: 8 }, () => makeNoiseFrame(128));
     let frameIdx = 0;
     noiseLayer.style.backgroundImage = `url(${noiseFrames[0]})`;
@@ -435,32 +518,15 @@
     }, 70);
   }
 
-  // typewriter effect sul nome
-  const target = document.getElementById('typedName');
-  const text = "simonegtt";
-  let i = 0;
-  function type(){
-    if(i <= text.length){
-      target.textContent = text.slice(0, i);
-      if(i === text.length){
-        target.innerHTML = text + '<span class="cursor">&nbsp;</span>';
-      }
-      i++;
-      setTimeout(type, 120);
-    }
-  }
-  type();
-
-  // data ultimo accesso = oggi, formato terminale
+  // data ultimo accesso
   document.getElementById('lastLogin').textContent =
     new Date().toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
-  // ---- fast type-sweep: every other text on the screen types itself in,
-  // all finishing at exactly the same moment regardless of length -- each
-  // node reveals characters proportional to elapsed progress (not a fixed
-  // char-per-tick), way quicker than the name -- everything else
-  // materializes as a burst while the name is still doing its slow,
-  // deliberate reveal. Standard across every page of the site.
+  // ---- fast type-sweep: every text on the screen types itself in, all
+  // finishing at exactly the same moment regardless of length -- each node
+  // reveals characters proportional to elapsed progress (not a fixed
+  // char-per-tick), so a long paragraph and a short label complete
+  // together. Standard across every page of the site.
   (function typeSweep(root, excludeEls, speed, steps){
     const exclude = excludeEls.filter(Boolean);
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -485,7 +551,7 @@
       if(frac < 1){ setTimeout(step, speed); }
     }
     step();
-  })(document.querySelector('.screen-content'), [target, document.getElementById('sessionTimer')], 15, 24);
+  })(document.querySelector('.screen-content'), [document.getElementById('sessionTimer')], 10, 24);
 
   // timer del tempo trascorso sulla pagina
   const sessionStart = Date.now();
@@ -499,7 +565,8 @@
   }
   setInterval(updateSessionTimer, 1000);
 
-  // power-button theme switch (green / amber / mono) with persistence
+  // power-button theme switch (green / amber / mono) with persistence,
+  // shared with the rest of the site via localStorage
   const crt = document.getElementById('crt');
   const dots = document.querySelectorAll('.power-dot');
   const themes = ['green', 'amber', 'mono'];
@@ -518,45 +585,19 @@
   setTheme(initial);
 
   dots.forEach(d => {
-    d.addEventListener('click', () => { bsodActive = false; setTheme(d.getAttribute('data-theme-btn')); });
+    d.addEventListener('click', () => setTheme(d.getAttribute('data-theme-btn')));
   });
-
-  // easter egg: click "Windows" to flip the screen into a BSOD-style palette
-  let bsodActive = false;
-  let themeBeforeBsod = initial;
-
-  function cancelBsod(){
-    if(!bsodActive) return;
-    crt.setAttribute('data-theme', themeBeforeBsod);
-    dots.forEach(d => d.classList.toggle('active', d.getAttribute('data-theme-btn') === themeBeforeBsod));
-    bsodActive = false;
-  }
-
-  document.getElementById('skillWindows').addEventListener('click', () => {
-    if(!bsodActive){
-      themeBeforeBsod = crt.getAttribute('data-theme');
-      crt.setAttribute('data-theme', 'bsod');
-      dots.forEach(d => d.classList.remove('active'));
-      bsodActive = true;
-    } else {
-      cancelBsod();
-    }
-  });
-
-  document.getElementById('skillLinux').addEventListener('click', cancelBsod);
 
   // if the browser restores this page from bfcache (e.g. via the back
   // button) it skips re-running the script above, so the screen can be
-  // left showing a stale theme (or a leftover BSOD). Re-sync on every
-  // "pageshow" -- cheap and correct even on a normal fresh load.
+  // left showing a stale theme. Re-sync on every "pageshow" -- cheap and
+  // correct even on a normal fresh load.
   window.addEventListener('pageshow', () => {
     let saved = 'green';
     try{
       const s = localStorage.getItem('term-theme');
       if(s && themes.includes(s)){ saved = s; }
     }catch(e){ /* storage not available */ }
-    bsodActive = false;
-    themeBeforeBsod = saved;
     setTheme(saved);
   });
 </script>
