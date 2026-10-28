@@ -505,6 +505,24 @@
     margin: 0 auto 0.5rem auto !important;
   }
 
+  /* download: the same button with inverted colors -- solid fill,
+     dark label */
+  .article .btn-row a.btn-primary{
+    background: var(--fg);
+    border-color: var(--fg);
+    color: #000;
+    text-shadow: none;
+  }
+
+  .article .btn-row a.btn-primary:hover,
+  .article .btn-row a.btn-primary:focus{
+    background: var(--fg);
+    border-color: var(--fg);
+    color: #000;
+    text-shadow: none;
+    box-shadow: 0 0 14px 2px var(--fg-glow), 0 0 34px 6px var(--fg-glow);
+  }
+
   /* preview: real screenshot of the netdoc terminal UI */
   .preview-img{
     display: block;
@@ -540,7 +558,7 @@
 
         <div class="btn-row">
           <a href="https://github.com/simonegtt/netdoc-go" target="_blank" rel="noopener">github</a>
-          <a href="https://github.com/simonegtt/netdoc-go/releases" target="_blank" rel="noopener">releases</a>
+          <a class="btn-primary" href="https://github.com/simonegtt/netdoc-go/releases" target="_blank" rel="noopener">download</a>
         </div>
 
         <div class="section-title">preview</div>

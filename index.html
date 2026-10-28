@@ -334,6 +334,45 @@
     box-shadow: 0 0 6px 1px var(--dot), 0 0 18px 5px var(--dot);
   }
 
+  /* netdoc logo: a link to the netdoc-go project page. The block is
+     centered as a whole, its lines stay left-aligned to keep the art's shape */
+  a.home-logo{
+    display: block;
+    width: fit-content;
+    margin: 0.6rem auto 0.4rem auto;
+    color: var(--fg);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  a.home-logo:hover,
+  a.home-logo:focus{
+    opacity: 1;
+    text-shadow: 0 0 8px var(--fg-glow), 0 0 24px var(--fg-glow), 0 0 42px var(--fg-glow);
+  }
+
+  a.home-logo pre{
+    margin: 0;
+    font-family: inherit;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    white-space: pre;
+    text-align: left;
+  }
+
+  .home-logo-sub{
+    display: block;
+    margin-top: 0.55rem;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 0.52rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    padding-left: 0.3em; /* balances the trailing letter-spacing */
+  }
+
   footer.sys{
     margin-top: 2rem;
     font-size: clamp(0.65rem, 1.4vw, 0.78rem);
@@ -369,6 +408,16 @@
       <div class="role">linux system administrator</div>
 
       <hr class="divider">
+
+      <a class="home-logo" href="netdoc-go.html" aria-label="netdoc-go project page">
+<pre aria-hidden="true">                   __      .___
+    ____    ____ _/  |_  __| _/ ____    ____
+   /    \ _/ __ \\   __\/ __ | /  _ \ _/ ___\
+  |   |  \\  ___/ |  | / /_/ |(  &lt;_&gt; )\  \___
+  |___|  / \___  &gt;|__| \____ | \____/  \___  &gt;
+       \/      \/           \/             \/</pre>
+        <span class="home-logo-sub">Automatic network documentation</span>
+      </a>
 
       <nav class="links">
         <a href="https://github.com/simonegtt" target="_blank" rel="noopener">github</a>
