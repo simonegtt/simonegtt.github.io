@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>simonegtt — netdoc-go</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #060a06;
+    --fg: #33ff66;
+    --fg-dim: #1c9c3f;
+    --fg-glow: rgba(51,255,102,0.65);
+    --scanline: rgba(51,255,102,0.06);
+  }
+  [data-theme="amber"]{
+    --fg: #ffb000;
+    --fg-dim: #a56a00;
+    --fg-glow: rgba(255,176,0,0.65);
+    --scanline: rgba(255,176,0,0.06);
+  }
+  [data-theme="mono"]{
+    --fg: #f2f2f2;
+    --fg-dim: #9a9a9a;
+    --fg-glow: rgba(240,240,240,0.5);
+    --scanline: rgba(240,240,240,0.05);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background: #000;
+  }
+
+  body{
+    font-family: "Share Tech Mono", "Courier New", "Consolas", monospace;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    overflow:hidden;
+    background: var(--bg);
+  }
+
+  /* ---- CRT screen: fills the browser window, no outer card ---- */
+  .crt{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    background: var(--bg);
+    box-shadow:
+      inset 0 0 60px 10px rgba(0,0,0,0.75),
+      inset 0 0 140px 50px rgba(0,0,0,0.5);
+    overflow:hidden;
+    transition: box-shadow 0.4s ease;
+  }
+
+  .flicker-layer{
+    position:fixed;
+    inset:0;
+    z-index:40;
+    pointer-events:none;
+    background:#000;
+    opacity:0;
+    animation: flickerFade 6s infinite;
+  }
+
+  /* curvature illusion: glassy highlight top, soft falloff at edges */
+  .crt::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.08), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.03), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 0% 0%,   rgba(0,0,0,0.6), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 100% 0%, rgba(0,0,0,0.6), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 0% 100%, rgba(0,0,0,0.6), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 100% 100%, rgba(0,0,0,0.6), transparent 70%),
+      radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.45) 100%);
+    pointer-events:none;
+    z-index:5;
+  }
+
+  /* scanlines */
+  .crt::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--scanline) 0px,
+      var(--scanline) 1px,
+      transparent 2px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+    pointer-events:none;
+    z-index:6;
+  }
+
+  /* static/noise */
+  .noise-layer{
+    position:absolute;
+    inset:0;
+    z-index:7;
+    pointer-events:none;
+    background-repeat: repeat;
+    background-size: 128px 128px;
+    mix-blend-mode: screen;
+    opacity: 0.07;
+    -webkit-mask-image: linear-gradient(to bottom,
+      #000 0%, rgba(0,0,0,0.45) 7%, transparent 19%,
+      transparent 81%, rgba(0,0,0,0.45) 93%, #000 100%);
+    mask-image: linear-gradient(to bottom,
+      #000 0%, rgba(0,0,0,0.45) 7%, transparent 19%,
+      transparent 81%, rgba(0,0,0,0.45) 93%, #000 100%);
+  }
+
+  .screen-content{
+    position:relative;
+    z-index:2;
+    height:100%;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 6vh 6vw;
+    overflow-y: auto;
+    color: var(--fg);
+    text-shadow: 0 0 4px var(--fg-glow), 0 0 12px var(--fg-glow);
+  }
+
+  .prompt-line{
+    font-size: clamp(0.75rem, 1.6vw, 1rem);
+    color: var(--fg-dim);
+    margin-bottom: 1.2rem;
+    letter-spacing: 1px;
+    text-align:center;
+  }
+
+  .page-title{
+    font-family: "Courier New", "Consolas", monospace;
+    font-size: clamp(1.05rem, 3vw, 1.5rem);
+    margin: 0 0 0.4rem 0;
+    letter-spacing: 1px;
+    text-align:center;
+  }
+
+  .page-title::before{ content: "> "; color: var(--fg-dim); }
+
+  /* "simonegtt" and "/projects" are just the way back -- keep them dim;
+     the current page is where you are, so it carries the light */
+  .page-title a{
+    color: var(--fg-dim);
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  .page-title a:hover{
+    color: var(--fg);
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 16px var(--fg-glow);
+  }
+
+  .page-title .path{
+    color: var(--fg);
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 16px var(--fg-glow);
+  }
+
+  .divider{
+    width: 60%;
+    max-width: 320px;
+    border: none;
+    border-top: 1px dashed var(--fg-dim);
+    opacity: 0.5;
+    margin: 1.2rem 0;
+  }
+
+  nav.links{
+    display:flex;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+    justify-content:center;
+    margin: 1.6rem 0 2rem 0;
+  }
+
+  nav.links a{
+    color: var(--fg);
+    text-decoration: none;
+    font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+    letter-spacing: 1px;
+    transition: text-shadow 0.2s ease, opacity 0.2s ease;
+    opacity: 0.85;
+  }
+
+  nav.links a:hover,
+  nav.links a:focus{
+    opacity: 1;
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 18px var(--fg-glow);
+  }
+
+  nav.links a::before{ content: "> "; color: var(--fg-dim); }
+  nav.links a::after{ content: " <"; color: var(--fg-dim); }
+
+  /* ---- article body: readable, left-aligned prose ---- */
+  .article{
+    width: 100%;
+    max-width: 680px;
+    text-align: left;
+  }
+
+  .article-date{
+    font-size: 0.75rem;
+    color: var(--fg-dim);
+    opacity: 0.8;
+    letter-spacing: 1px;
+    margin-bottom: 0.3rem;
+  }
+
+  .article-thanks{
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    opacity: 0.85;
+    font-style: italic;
+    margin: -0.7rem 0 1.4rem 0;
+  }
+
+  .article-thanks::before{ content: "// "; }
+
+  .article h1.article-title{
+    font-family: "Courier New", "Consolas", monospace;
+    font-size: clamp(1.3rem, 3.4vw, 1.8rem);
+    margin: 0 0 1.4rem 0;
+    letter-spacing: 0.5px;
+  }
+
+  .article p{
+    font-size: 0.85rem;
+    line-height: 1.7;
+    margin: 0 0 1.1rem 0;
+    opacity: 0.95;
+  }
+
+  .article .lede{
+    opacity: 1;
+  }
+
+  .callout{
+    border-left: 2px solid var(--fg-dim);
+    padding: 0.7rem 1rem;
+    margin: 0 0 1.4rem 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--fg-dim);
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
+  }
+
+  .callout::before{ content: "! "; color: var(--fg); }
+
+  .section-title{
+    font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+    color: var(--fg-dim);
+    letter-spacing: 2px;
+    margin: 2rem 0 0.8rem 0;
+  }
+
+  .section-title::before{ content: "$ "; }
+
+  .article ul,
+  .article ol{
+    margin: 0 0 1.2rem 0;
+    padding-left: 1.4rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .article ul{ list-style: none; padding-left: 0; }
+
+  .article ul li{ padding-left: 1.3rem; position:relative; margin-bottom: 0.4rem; }
+  .article ul li::before{
+    content: "›";
+    position:absolute;
+    left: 0;
+    color: var(--fg-dim);
+  }
+
+  .article ol{ list-style: none; counter-reset: step; }
+  .article ol li{
+    counter-increment: step;
+    padding-left: 2rem;
+    position:relative;
+    margin-bottom: 0.7rem;
+  }
+  .article ol li::before{
+    content: counter(step) ".";
+    position:absolute;
+    left: 0;
+    color: var(--fg-dim);
+  }
+
+  .systems-list{
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--fg-dim);
+    opacity: 0.85;
+    margin: 0 0 1.2rem 0;
+    word-break: break-word;
+  }
+
+  .article strong{
+    color: var(--fg);
+    font-weight: normal;
+    text-shadow: 0 0 4px var(--fg-glow);
+  }
+
+  .article a{
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--fg-dim);
+    text-underline-offset: 3px;
+  }
+
+  .article a:hover{
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 14px var(--fg-glow);
+  }
+
+  .note-box{
+    margin-top: 1.6rem;
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    opacity: 0.85;
+    line-height: 1.7;
+  }
+
+  .power-buttons{
+    flex-shrink: 0;
+    margin-top: 1.6rem;
+    z-index: 10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 9px;
+  }
+
+  .power-label{
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--fg-dim);
+    opacity: 0.65;
+  }
+
+  .power-label::before{ content: "$ "; }
+
+  .power-dots{
+    display:flex;
+    align-items:center;
+    gap: 15px;
+  }
+
+  .power-dot{
+    position: relative;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--dot);
+    border: none;
+    box-shadow: 0 0 5px 0 var(--dot);
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.28;
+    transition: opacity 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  }
+
+  .power-dot::before{
+    content:"";
+    position:absolute;
+    inset:-16px;
+    border-radius:50%;
+  }
+
+  .power-dot:hover{
+    opacity: 0.7;
+    transform: scale(1.15);
+  }
+
+  .power-dot.active{
+    opacity: 1;
+    box-shadow: 0 0 6px 1px var(--dot), 0 0 18px 5px var(--dot);
+  }
+
+  footer.sys{
+    margin-top: 2rem;
+    font-size: clamp(0.65rem, 1.4vw, 0.78rem);
+    color: var(--fg-dim);
+    opacity: 0.7;
+    text-align:center;
+  }
+
+  @keyframes flickerFade{
+    0%, 92%, 100% { opacity: 0; }
+    93% { opacity: 0.07; }
+    94% { opacity: 0.01; }
+    95% { opacity: 0.05; }
+    96% { opacity: 0; }
+  }
+
+  @media (max-width: 600px){
+    nav.links{ gap: 0.8rem; }
+  }
+
+  /* ---- netdoc-go page: everything centered ---- */
+  .article{ text-align: center; }
+
+  .article p{ margin-left: auto; margin-right: auto; max-width: 580px; }
+
+  /* the ASCII logo: block centered as a whole, lines kept left-aligned
+     so the art keeps its shape */
+  .article pre.nd-logo{
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 0.7rem auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow: visible;
+    font-family: inherit;
+    font-size: clamp(0.55rem, 2.9vw, 1.15rem);
+    line-height: 1.15;
+    white-space: pre;
+    text-align: left;
+    color: var(--fg);
+  }
+
+  .nd-sub{
+    font-size: clamp(0.6rem, 1.9vw, 0.9rem);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin: 0 0 1.8rem 0;
+    padding-left: 0.32em; /* balances the trailing letter-spacing */
+  }
+
+  /* buttons in the style of the home page */
+  .btn-row{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.2rem;
+    margin: 0 0 1.4rem 0;
+  }
+
+  .article .btn-row a{
+    color: var(--fg);
+    text-decoration: none;
+    border: 1px solid var(--fg-dim);
+    padding: 0.5rem 1.1rem;
+    font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+    letter-spacing: 1px;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  .article .btn-row a:hover,
+  .article .btn-row a:focus{
+    background: color-mix(in srgb, var(--fg) 12%, transparent);
+    border-color: var(--fg);
+    box-shadow: 0 0 10px 1px var(--fg-glow), 0 0 26px 4px var(--fg-glow);
+    text-shadow: 0 0 6px var(--fg-glow), 0 0 18px var(--fg-glow);
+  }
+
+  .btn-row a::before{ content: "[ "; }
+  .btn-row a::after{ content: " ]"; }
+
+  /* lists: centered, no bullets */
+  .article ul{ padding: 0; margin: 0 0 1.2rem 0; list-style: none; }
+  .article ul li{ padding-left: 0; margin: 0 auto 0.7rem auto; max-width: 580px; }
+  .article ul li::before{ content: none; }
+
+  /* code blocks: the box is centered, the code inside stays left-aligned */
+  .article pre{
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 1.3rem auto;
+    padding: 0.8rem 1.1rem;
+    border-left: 2px solid var(--fg-dim);
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
+    font-family: inherit;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    white-space: pre;
+    overflow-x: auto;
+    text-align: left;
+  }
+
+  .article code{ font-family: inherit; color: var(--fg); }
+
+  .code-label{
+    font-size: 0.78rem !important;
+    color: var(--fg-dim);
+    margin: 0 auto 0.5rem auto !important;
+  }
+
+  /* preview: real screenshot of the netdoc terminal UI */
+  .preview-img{
+    display: block;
+    width: 100%;
+    max-width: 680px;
+    height: auto;
+    margin: 0 auto 1.4rem auto;
+    border: 1px solid var(--fg-dim);
+  }
+  </style>
+</head>
+<body>
+  <div class="crt" data-theme="green" id="crt">
+    <div class="screen-content">
+      <div class="prompt-line">last login: <span id="lastLogin"></span></div>
+
+      <h1 class="page-title">
+        <a href="index.html">simonegtt</a><a href="projects.html">/projects</a><span class="path">/netdoc-go</span>
+      </h1>
+
+      <hr class="divider">
+
+      <article class="article">
+<pre class="nd-logo" aria-hidden="true">                   __      .___
+    ____    ____ _/  |_  __| _/ ____    ____
+   /    \ _/ __ \\   __\/ __ | /  _ \ _/ ___\
+  |   |  \\  ___/ |  | / /_/ |(  &lt;_&gt; )\  \___
+  |___|  / \___  &gt;|__| \____ | \____/  \___  &gt;
+       \/      \/           \/             \/</pre>
+        <div class="nd-sub">Automatic network documentation</div>
+
+        <p class="lede">netdoc scans one or more subnets with nmap, sorts the devices it finds into categories and writes a ready-to-share report in Markdown, DOCX, PDF, TXT and HTML. It ships as a single Go binary with an interactive terminal UI. nmap is the only runtime dependency.</p>
+
+        <div class="btn-row">
+          <a href="https://github.com/simonegtt/netdoc-go" target="_blank" rel="noopener">github</a>
+          <a href="https://github.com/simonegtt/netdoc-go/releases" target="_blank" rel="noopener">releases</a>
+        </div>
+
+        <div class="section-title">preview</div>
+        <img class="preview-img" src="netdoc-preview.png" width="1082" height="368" alt="netdoc terminal UI: main menu and current configuration">
+
+
+        <div class="section-title">features</div>
+        <ul>
+          <li>Three-step nmap pipeline: host discovery, OS/service detection, NetBIOS names as a hostname fallback.</li>
+          <li>Devices grouped by nmap device type: Network, Storage, Specialized Servers, Servers &amp; Workstations, Printer, Power Device, Generic.</li>
+          <li>Network Summary with subnet, default gateway and DNS servers (the real upstream servers, also behind systemd-resolved or NetworkManager's dnsmasq).</li>
+          <li>Optional extras: internet speed test (Cloudflare), open ports and services, TLS certificate expiry, a Credentials section to fill in by hand.</li>
+          <li>Output formats: Markdown (always), DOCX and PDF (default), TXT and HTML (optional), with 7 document color themes.</li>
+          <li>Report archive: read, compare two reports, regenerate with another theme, remove categories, delete &mdash; all from the stored raw scan data, no rescan.</li>
+        </ul>
+
+        <div class="section-title">requirements</div>
+        <ul>
+          <li>Linux (reads <code>/proc/net/route</code> and <code>/etc/resolv.conf</code>).</li>
+          <li>nmap &mdash; if it is missing, <code>netdoc --subnet</code> offers to install it with dnf, apt or pacman.</li>
+          <li>sudo rights (OS detection and UDP probes need root).</li>
+          <li>Go 1.24 or newer, only to build from source.</li>
+        </ul>
+
+        <div class="section-title">install</div>
+        <p class="code-label">Fedora, Rocky Linux, RHEL (installs nmap too):</p>
+<pre>sudo dnf install ./netdoc-0.1.1-1.x86_64.rpm</pre>
+        <p class="code-label">Debian, Ubuntu (installs nmap too):</p>
+<pre>sudo apt install ./netdoc_0.1.1_amd64.deb</pre>
+        <p class="code-label">Any distribution, from the archive:</p>
+<pre>tar -xzf netdoc_0.1.1_linux_amd64.tar.gz
+sudo install netdoc /usr/local/bin/</pre>
+        <p class="code-label">Build from source:</p>
+<pre>git clone https://github.com/simonegtt/netdoc-go.git
+cd netdoc-go
+go build -o netdoc .</pre>
+
+        <div class="section-title">usage</div>
+<pre>./netdoc                                  # interactive terminal UI
+./netdoc --subnet 192.168.10.0/24         # direct scan with default settings
+./netdoc --subnet 192.168.10.0/24 --title "Netdoc Corp" --output-dir reports
+./netdoc --show-subnets                   # print the detected local subnets
+./netdoc --version                        # print the version</pre>
+
+        <div class="section-title">license</div>
+        <p>netdoc is released under the MIT License. nmap is not part of netdoc and is not included in any download: netdoc runs the copy of nmap installed on the system, distributed separately under its own license.</p>
+      </article>
+
+      <nav class="links">
+        <a href="projects.html">back to projects</a>
+      </nav>
+
+      <footer class="sys">system online — session time: <span id="sessionTimer">00:00:00</span></footer>
+
+      <div class="power-buttons">
+        <div class="power-label">theme</div>
+        <div class="power-dots">
+          <button class="power-dot" data-theme-btn="green" style="--dot:#33ff66" title="Green" aria-label="Green theme"></button>
+          <button class="power-dot" data-theme-btn="amber" style="--dot:#ffb000" title="Amber" aria-label="Amber theme"></button>
+          <button class="power-dot" data-theme-btn="mono" style="--dot:#f2f2f2" title="Mono" aria-label="Mono theme"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="noise-layer" id="noiseLayer"></div>
+  </div>
+
+  <div class="flicker-layer"></div>
+
+<script>
+  // ---- static/noise overlay ----
+  function makeNoiseFrame(size){
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(size, size);
+    for(let p = 0; p < img.data.length; p += 4){
+      const v = Math.random() * 255;
+      img.data[p] = v; img.data[p + 1] = v; img.data[p + 2] = v; img.data[p + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    return c.toDataURL();
+  }
+
+  const noiseLayer = document.getElementById('noiseLayer');
+  if(noiseLayer){
+    const noiseFrames = Array.from({ length: 8 }, () => makeNoiseFrame(128));
+    let frameIdx = 0;
+    noiseLayer.style.backgroundImage = `url(${noiseFrames[0]})`;
+    setInterval(() => {
+      frameIdx = (frameIdx + 1) % noiseFrames.length;
+      noiseLayer.style.backgroundImage = `url(${noiseFrames[frameIdx]})`;
+    }, 70);
+  }
+
+  // data ultimo accesso
+  document.getElementById('lastLogin').textContent =
+    new Date().toISOString().replace('T',' ').slice(0,19) + ' UTC';
+
+  // ---- fast type-sweep: every text on the screen types itself in, all
+  // finishing at exactly the same moment regardless of length -- each node
+  // reveals characters proportional to elapsed progress (not a fixed
+  // char-per-tick), so a long paragraph and a short label complete
+  // together. Standard across every page of the site.
+  (function typeSweep(root, excludeEls, speed, steps){
+    const exclude = excludeEls.filter(Boolean);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if(!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        if(exclude.some(el => el.contains(node))) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const items = [];
+    let n;
+    while(n = walker.nextNode()){ items.push({ node: n, full: n.nodeValue }); }
+    items.forEach(item => { item.node.nodeValue = ''; });
+
+    let tick = 0;
+    function step(){
+      tick++;
+      const frac = Math.min(1, tick / steps);
+      items.forEach(item => {
+        item.node.nodeValue = item.full.slice(0, Math.round(item.full.length * frac));
+      });
+      if(frac < 1){ setTimeout(step, speed); }
+    }
+    step();
+  })(document.querySelector('.screen-content'), [document.getElementById('sessionTimer')], 10, 24);
+
+  // timer del tempo trascorso sulla pagina
+  const sessionStart = Date.now();
+  const sessionTimerEl = document.getElementById('sessionTimer');
+  function updateSessionTimer(){
+    const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    sessionTimerEl.textContent = `${h}:${m}:${s}`;
+  }
+  setInterval(updateSessionTimer, 1000);
+
+  // power-button theme switch (green / amber / mono) with persistence,
+  // shared with the rest of the site via localStorage
+  const crt = document.getElementById('crt');
+  const dots = document.querySelectorAll('.power-dot');
+  const themes = ['green', 'amber', 'mono'];
+
+  function setTheme(theme){
+    crt.setAttribute('data-theme', theme);
+    dots.forEach(d => d.classList.toggle('active', d.getAttribute('data-theme-btn') === theme));
+    try{ localStorage.setItem('term-theme', theme); }catch(e){ /* storage not available */ }
+  }
+
+  let initial = 'green';
+  try{
+    const saved = localStorage.getItem('term-theme');
+    if(saved && themes.includes(saved)){ initial = saved; }
+  }catch(e){ /* storage not available: start from default theme */ }
+  setTheme(initial);
+
+  dots.forEach(d => {
+    d.addEventListener('click', () => setTheme(d.getAttribute('data-theme-btn')));
+  });
+
+  // if the browser restores this page from bfcache (e.g. via the back
+  // button) it skips re-running the script above, so the screen can be
+  // left showing a stale theme. Re-sync on every "pageshow" -- cheap and
+  // correct even on a normal fresh load.
+  window.addEventListener('pageshow', () => {
+    let saved = 'green';
+    try{
+      const s = localStorage.getItem('term-theme');
+      if(s && themes.includes(s)){ saved = s; }
+    }catch(e){ /* storage not available */ }
+    setTheme(saved);
+  });
+</script>
+</body>
+</html>

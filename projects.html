@@ -252,6 +252,18 @@
     opacity: 1;
   }
 
+  /* ASCII logo above a project: the block is centered as a whole, while
+     its lines stay left-aligned so the art keeps its shape */
+  .project-logo{
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    white-space: pre;
+    text-align: left;
+    color: var(--fg);
+  }
+
   .project-name{
     font-size: 0.95rem;
     letter-spacing: 1px;
@@ -363,10 +375,15 @@
       <hr class="divider">
 
       <div class="project-list">
-        <a class="project-row" href="#">
-          <span class="project-name">project-01</span>
-          <span class="project-year">2024</span>
-          <span class="project-desc">Automated backup &amp; monitoring pipeline for a Linux server infrastructure.</span>
+        <a class="project-row" href="netdoc-go.html">
+<pre class="project-logo" aria-hidden="true">                   __      .___
+    ____    ____ _/  |_  __| _/ ____    ____
+   /    \ _/ __ \\   __\/ __ | /  _ \ _/ ___\
+  |   |  \\  ___/ |  | / /_/ |(  &lt;_&gt; )\  \___
+  |___|  / \___  &gt;|__| \____ | \____/  \___  &gt;
+       \/      \/           \/             \/</pre>
+          <span class="project-name">netdoc-go</span>
+          <span class="project-desc">Automatic network documentation for Linux: scans subnets with nmap and writes ready-to-share reports</span>
         </a>
         <hr class="project-sep">
         <a class="project-row" href="fujitsu-bios-recovery.html">
